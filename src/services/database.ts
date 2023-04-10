@@ -1,4 +1,4 @@
-import { Knex, knex as knexSetup } from 'knex';
+import knexSetup, { Knex } from 'knex';
 import { env } from '../../env';
 
 export const config: Knex.Config = {
