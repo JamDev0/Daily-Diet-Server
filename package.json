@@ -19,6 +19,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@types/knex": "^0.16.1",
     "@types/node": "^18.15.11",
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
