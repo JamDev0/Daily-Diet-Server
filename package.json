@@ -1,0 +1,25 @@
+{
+  "name": "daily-diet-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx src/server.ts --watch",
+    "build": "tsup src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "fastify": "^4.15.0",
+    "pg": "^8.10.0",
+    "tsup": "^6.7.0",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "sqlite3": "^5.1.6",
+    "tsx": "^3.12.6",
+    "typescript": "^5.0.4"
+  }
+}
