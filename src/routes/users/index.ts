@@ -1,5 +1,5 @@
-import { randomUUID } from 'crypto';
 import { FastifyInstance } from 'fastify';
+import { createHash, randomUUID } from 'node:crypto';
 import zod from 'zod';
 import { knex } from '../../services/database';
 
@@ -14,7 +14,9 @@ export async function usersRoutes(server: FastifyInstance) {
 
       const body = reqBodySchema.parse(req.body);
 
-      const userId = (await knex('users').insert({...body, id: randomUUID()}).returning('id'))[0];
+      const hashedPassword = createHash('sha256').update(body.password).digest('hex');
+
+      const userId = (await knex('users').insert({...body, id: randomUUID(), password: hashedPassword}).returning('id'))[0];
 
       if(userId) return res.code(201).send({ userId });
 
