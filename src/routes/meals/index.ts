@@ -2,8 +2,8 @@ import { randomUUID } from 'crypto';
 import { isSameDay, sub } from 'date-fns';
 import { FastifyInstance } from 'fastify';
 import zod from 'zod';
-import { checkIfUserSessionIdExists } from '../preHandlers/checkIfUserSessionIdExists';
-import { knex } from '../services/database';
+import { knex } from '../../services/database';
+import { checkIfUserSessionIdExists } from './preHandlers/checkIfUserSessionIdExists';
 
 export async function mealsRoutes(server: FastifyInstance) {
   server.post('/', async (req, res) => {
