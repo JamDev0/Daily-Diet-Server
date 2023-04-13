@@ -6,17 +6,12 @@ import { knex } from '../../services/database';
 import { checkIfUserSessionIdExists } from './preHandlers/checkIfUserSessionIdExists';
 
 export async function mealsRoutes(server: FastifyInstance) {
-  server.post('/', async (req, res) => {
-    let userSessionId = req.cookies['daily-diet.user_session_id'];
+  server.post('/', { preHandler: [checkIfUserSessionIdExists] } , async (req, res) => {
+    const userSessionId = req.cookies['daily-diet.user_session_id'] as string;
 
-    if(!userSessionId) {
-      userSessionId = randomUUID();
+    const userId = await knex('session_ids').select('user_id').where('value', userSessionId).first();
 
-      res.cookie('daily-diet.user_session_id', userSessionId, {
-        maxAge: 1000 * 60 * 60 * 24 * 10, // 10 days
-        path: '/'
-      });
-    }
+    if(!userId) return res.code(500).send();
 
     const bodySchema = zod.object({
       name: zod.string(),
@@ -27,7 +22,7 @@ export async function mealsRoutes(server: FastifyInstance) {
 
     const body = bodySchema.parse(req.body);
 
-    const mealId = (await knex('meals').insert({ ...body, id: randomUUID(), user_session_id: userSessionId, date: new Date(body.date) }).returning('id'))[0].id;
+    const mealId = (await knex('meals').insert({ ...body, id: randomUUID(), user_id: userId.user_id, date: new Date(body.date) }).returning('id'))[0].id;
 
     if(!mealId) {
       return res.code(500).send({ message: 'A error happen while creating a new meal entry!' });
@@ -86,7 +81,11 @@ export async function mealsRoutes(server: FastifyInstance) {
     },
     async (req, res) => {
       const userSessionId = req.cookies['daily-diet.user_session_id'] as string;
-  
+      
+      const userId = await knex('session_ids').select('user_id').where('value', userSessionId).first();
+
+      if(!userId) return res.code(500).send();
+
       const paramsSchema = zod.object({
         id: zod.string().uuid()
       });
@@ -104,7 +103,7 @@ export async function mealsRoutes(server: FastifyInstance) {
   
       const entriesUpdated = await knex('meals')
         .where({
-          user_session_id: userSessionId,
+          user_id: userId.user_id,
           id
         })
         .update(body);
@@ -124,13 +123,17 @@ export async function mealsRoutes(server: FastifyInstance) {
     async (req, res) => {
       const userSessionId = req.cookies['daily-diet.user_session_id'] as string;
       
+      const userId = await knex('session_ids').select('user_id').where('value', userSessionId).first();
+
+      if(!userId) return res.code(500).send();
+      
       const paramsSchema = zod.object({
         id: zod.string().uuid()
       });
   
       const { id } = paramsSchema.parse(req.params);
 
-      const entriesDeleted = await knex('meals').where({id, user_session_id: userSessionId}).delete();
+      const entriesDeleted = await knex('meals').where({id, user_id: userId.user_id}).delete();
 
       if(entriesDeleted === 0) {
         return res.code(404).send({ message: `No meal found with id ${id} in current session.`});
@@ -148,13 +151,17 @@ export async function mealsRoutes(server: FastifyInstance) {
     async (req, res) => {
       const userSessionId = req.cookies['daily-diet.user_session_id'] as string;
       
+      const userId = await knex('session_ids').select('user_id').where('value', userSessionId).first();
+
+      if(!userId) return res.code(500).send();
+
       const paramsSchema = zod.object({
         id: zod.string().uuid()
       });
   
       const { id } = paramsSchema.parse(req.params);
 
-      const meal = await knex('meals').where({id, user_session_id: userSessionId}).first();
+      const meal = await knex('meals').where({id, user_id: userId.user_id}).first();
 
       if(!meal) {
         return res.code(404).send({ message: `No meal found with id ${id} in current session.`});
@@ -192,9 +199,13 @@ export async function mealsRoutes(server: FastifyInstance) {
     async (req, res) => {
       const userSessionId = req.cookies['daily-diet.user_session_id'] as string;
       
+      const userId = await knex('session_ids').select('user_id').where('value', userSessionId).first();
+
+      if(!userId) return res.code(500).send();
+
       const mealsKnexCount = await knex('meals')
         .where({
-          user_session_id: userSessionId,
+          user_id: userId.user_id,
           is_compliant: true
         })
         .count()
@@ -218,9 +229,13 @@ export async function mealsRoutes(server: FastifyInstance) {
     async (req, res) => {
       const userSessionId = req.cookies['daily-diet.user_session_id'] as string;
       
+      const userId = await knex('session_ids').select('user_id').where('value', userSessionId).first();
+
+      if(!userId) return res.code(500).send();
+
       const mealsKnexCount = await knex('meals')
         .where({
-          user_session_id: userSessionId,
+          user_id: userId.user_id,
           is_compliant: false
         })
         .count()
@@ -244,10 +259,14 @@ export async function mealsRoutes(server: FastifyInstance) {
     async (req, res) => {
       const userSessionId = req.cookies['daily-diet.user_session_id'] as string;
 
+      const userId = await knex('session_ids').select('user_id').where('value', userSessionId).first();
+
+      if(!userId) return res.code(500).send();
+
       const compliantMealsDate = await knex('meals')
         .column('date')
         .where({ 
-          user_session_id: userSessionId, 
+          user_id: userId.user_id, 
           is_compliant: true 
         })
         .orderBy('date');
