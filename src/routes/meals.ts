@@ -27,7 +27,7 @@ export async function mealsRoutes(server: FastifyInstance) {
 
     const body = bodySchema.parse(req.body);
 
-    const mealId = (await knex('meals').insert({ ...body, id: randomUUID(), user_session_id: userSessionId, date: new Date(body.date) }).returning('id'))[0];
+    const mealId = (await knex('meals').insert({ ...body, id: randomUUID(), user_session_id: userSessionId, date: new Date(body.date) }).returning('id'))[0].id;
 
     if(!mealId) {
       return res.code(500).send({ message: 'A error happen while creating a new meal entry!' });
@@ -113,7 +113,7 @@ export async function mealsRoutes(server: FastifyInstance) {
         return res.code(404).send({ message: `No meal found with id ${id} in current session.`});
       }
   
-      return;
+      return res.code(204).send();
     });
 
   server.delete(
@@ -136,7 +136,7 @@ export async function mealsRoutes(server: FastifyInstance) {
         return res.code(404).send({ message: `No meal found with id ${id} in current session.`});
       }
   
-      return;
+      return res.code(204).send();
     }
   );
 
@@ -260,7 +260,7 @@ export async function mealsRoutes(server: FastifyInstance) {
 
       let highestStreak = 0;
 
-      const test = dates.reduce((acc, date, index, array) => {
+      const lastStreakCount = dates.reduce((acc, date, index, array) => {
         const nextDateLessOne = sub(array[index + 1], { days: 1 });
 
         const lastIndex = array.length - 1;
