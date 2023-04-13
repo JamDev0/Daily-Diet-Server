@@ -18,7 +18,7 @@ export async function up(knex: Knex): Promise<void> {
 
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable('user');
+  await knex.schema.dropTable('users');
 
   await knex.schema.dropTable('session_ids');
 }
