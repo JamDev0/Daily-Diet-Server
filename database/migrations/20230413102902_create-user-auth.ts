@@ -2,7 +2,7 @@ import { Knex } from 'knex';
 
 
 export async function up(knex: Knex): Promise<void> {
-  await knex.schema.createTable('user', (table) => {
+  await knex.schema.createTable('users', (table) => {
     table.uuid('id').primary().index();
     table.string('user_name').notNullable();
     table.string('password').notNullable;
