@@ -16,7 +16,7 @@ export async function usersRoutes(server: FastifyInstance) {
 
       const hashedPassword = createHash('sha256').update(body.password).digest('hex');
 
-      const userId = (await knex('users').insert({...body, id: randomUUID(), password: hashedPassword}).returning('id'))[0];
+      const userId = (await knex('users').insert({...body, id: randomUUID(), password: hashedPassword}).returning('id'))[0].id;
 
       if(userId) return res.code(201).send({ userId });
 
