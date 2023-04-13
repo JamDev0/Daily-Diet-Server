@@ -1,6 +1,6 @@
 export interface Meal {
   id: string;
-  user_session_id: string; // Id of the user that is storage in user cookies
+  user_id: string; 
   name: string;
   description: string;
   date: Date;
