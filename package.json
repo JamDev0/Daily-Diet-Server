@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx src/server.ts",
     "dev:watch": "tsx --watch src/server.ts",
-    "build": "tsup src/server.ts",
+    "build": "tsup src",
     "lint": "eslint src/",
     "knex": "node --no-warnings --loader tsx  ./node_modules/knex/bin/cli.js  --knexfile ./knexfile.ts",
     "test": "vitest"
